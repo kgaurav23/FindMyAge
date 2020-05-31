@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">FindMyAge</string>
+    <string name="enter_your_birth_year_hint">Enter your birth year</string>
+    <string name="find_age_button_text">Find Age</string>
+
+    <string name="age_text">Your age is %d years</string>
+    <string name="validation_error_message">Please enter valid birth year</string>
 </resources>
