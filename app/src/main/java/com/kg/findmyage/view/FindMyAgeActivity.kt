@@ -3,42 +3,67 @@ package com.kg.findmyage.view
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.kg.findmyage.R
-import com.kg.findmyage.interfaces.IViewContract
-import com.kg.findmyage.presenter.AgePresenter
+import com.kg.findmyage.viewmodel.AgeViewModel
 import kotlinx.android.synthetic.main.activity_find_my_age.*
 
-class FindMyAgeActivity : AppCompatActivity(), IViewContract {
+class FindMyAgeActivity : AppCompatActivity(){
+
+    private lateinit var viewModel: AgeViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_find_my_age)
 
-        val agePresenter = AgePresenter(this)
+        viewModel = ViewModelProviders.of(this).get(AgeViewModel::class.java)
+        observeViewModel()
 
         btn_find_age.setOnClickListener {
-            agePresenter.findAge(et_birth_year.text.toString())
+            viewModel.findAge(et_birth_year.text.toString())
         }
     }
 
-    override fun showAgeOnScreen(age: Int) {
-        tv_age.visibility = View.VISIBLE
-        tv_age.text = getString(R.string.age_text, age)
+    private fun observeViewModel() {
+        observeLoaderChange()
+        observeAgeTextChange()
+        observeValidationErrorChange()
+        observeAgeViewChange()
     }
 
-    override fun showValidationError() {
-        et_birth_year.error = getString(R.string.validation_error_message)
+    private fun observeAgeViewChange() {
+        viewModel.showAgeView.observe(this, Observer { isShowAgeView ->
+            if(isShowAgeView) {
+                tv_age.visibility = View.VISIBLE
+            } else {
+                tv_age.visibility = View.GONE
+            }
+        })
     }
 
-    override fun hideAgeView() {
-        tv_age.visibility = View.GONE
+    private fun observeValidationErrorChange() {
+        viewModel.showValidationError.observe(this, Observer { isShowError ->
+            if(isShowError) {
+                et_birth_year.error = getString(R.string.validation_error_message)
+            }
+        })
     }
 
-    override fun showProgressBar() {
-        progress_bar.visibility = View.VISIBLE
+    private fun observeAgeTextChange() {
+        viewModel.age.observe(this, Observer { personAge ->
+            tv_age.visibility = View.VISIBLE
+            tv_age.text = getString(R.string.age_text, personAge)
+        })
     }
 
-    override fun hideProgressBar() {
-        progress_bar.visibility = View.GONE
+    private fun observeLoaderChange() {
+        viewModel.showLoader.observe(this, Observer { isShowLoader ->
+            if(isShowLoader) {
+                progress_bar.visibility = View.VISIBLE
+            } else {
+                progress_bar.visibility = View.GONE
+            }
+        })
     }
 }
